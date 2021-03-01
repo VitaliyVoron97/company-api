@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    ports:
+      - 5885:80
+      - 5883:443
+    volumes:
+      - ./:/var/www/company-api
+    links:
+      - fpm
+  fpm:
+    build:
+      context: .
+      dockerfile: docker/fpm/Dockerfile
+    volumes:
+      - ./:/var/www/company-api
+    links:
+      - pgsql
+
+  pgsql:
+    image: postgres:10.1
+    ports:
+      - 25432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: company_api
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: company_api
+
+volumes:
+  db-data:
